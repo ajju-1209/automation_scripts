@@ -1,0 +1,32 @@
+name: Clean Gmail Inbox (Mainly Promotional and Social Emails )
+on:
+  workflow_dispatch:
+
+jobs:
+  clean_inbox:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository 
+        #This step checks out the repository so that the workflow can access its contents.
+        # This is necessary to access the scripts and any other files in the repository.
+        # The 'actions/checkout@v2' action is used to check out the repository.
+        # This action is maintained by GitHub and is commonly used in workflows.
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+      
+      - name: Setup Gmail Credentials
+        run: |
+          echo "${{ secrets.GMAIL_CREDENTIALS }}" | base64 -d > credentials.json
+          echo "${{ secrets.GMAIL_TOKEN }}" | base64 -d > token.json
+
+      - name: Run Inbox Cleaning Script
+        run: python mail_delete_script.py 

@@ -31,6 +31,9 @@ wheels/
 token.json
 credentials.json
 
+# Base64 encoded credentials
+*_b64.txt
+
 # VS Code
 .vscode/
 *.code-workspace
