@@ -1,0 +1,40 @@
+name: GCP WIF Connection Test
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  test-gcp-connection:
+    runs-on: ubuntu-latest
+    
+    # CRITICAL: These permissions are strictly required for OIDC to work
+    permissions:
+      id-token: write 
+      contents: read  
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        # This is the exact string we generated earlier
+        workload_identity_provider: 'projects/729464852006/locations/global/workloadIdentityPools/my-github-pool/providers/my-github-provider'
+        service_account: 'svc-auto@auto-script1.iam.gserviceaccount.com'
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    # --- THE TESTS ---
+
+    - name: Test 1 - Authentication (Who am I?)
+      run: |
+        echo "Checking which account is currently logged in..."
+        gcloud auth list
+
+    - name: Test 2 - Authorization (What can I do?)
+      run: |
+        echo "Attempting to read the GCP Project details..."
+        gcloud projects describe auto-script1 || echo "As expected, we got a 403 error because the SA has no permissions yet!"
